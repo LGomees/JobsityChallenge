@@ -1,6 +1,14 @@
 from sqlalchemy import create_engine, text
 import pandas as pd
 import os
+import sys
+
+# Get filepath
+if len(sys.argv) < 2:
+    print("Error: No file path provided.")
+    sys.exit(1)
+
+file_path = sys.argv[1]
 
 # Get credentials
 DB_USER = os.getenv("DB_USER")
@@ -8,7 +16,6 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
-CSV_NAME = os.getenv("CSV_NAME")
 
 # Database configuration
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -21,8 +28,14 @@ coord_mappings = {
 }
 
 # Reading raw CSV
-file_path = f'./data/{CSV_NAME}.csv'
-raw_df = pd.read_csv(file_path, sep=',')
+file_path = f'./{file_path}'
+
+try:
+    raw_df = pd.read_csv(file_path, sep=',')  
+except Exception as e:
+    print(f"Error reading the CSV file: {e}")
+    sys.exit(1)
+
 
 raw_df['datetime'] = pd.to_datetime(raw_df['datetime'], errors='coerce')
 
